@@ -1,0 +1,54 @@
+---
+title: "hw4_bm_wq2160"
+author: "Wenshan Qu (wq2160)"
+date: "11/11/2021"
+output: html_document
+---
+
+```{r include = FALSE}
+library(tidyverse)
+```
+
+## Problem 1
+
+We want to prove $\sum_{i = 1}^{k} \sum_{j = 1}^{n_{i}} (y_{ij} - \bar{\bar{y}})^2  = \sum_{i = 1}^{k} \sum_{j = 1}^{n_{i}} (y_{ij} - \bar{y_{l}})^2 + \sum_{i = 1}^{k} \sum_{j = 1}^{n_{i}} (\bar{y_{l}} - \bar{\bar{y}})^2$
+
+Which could also be seen as $TotalSS = WithinSS + BetweenSS$
+
+Note that:
+
+$k$: number of groups;
+
+$n_{i}$: number of observations in the $i^{th}$ group;
+
+$y_{ij}$: denotes the observation of the $j^{th}$ subject from the $i^{th}$ group;
+
+$\bar{\bar{y}}$: grand mean;
+
+$\bar{y_{l}}$: mean from the $i^{th}$ group.
+
+
+Proof:
+
+$TotalSS = \sum_{i = 1}^{k} \sum_{j = 1}^{n_{i}} (y_{ij} - \bar{\bar{y}})^2 = \sum_{i = 1}^{k} \sum_{j = 1}^{n_{i}}(y_{ij} - \bar{y_{l}} + \bar{y_{l}} - \bar{\bar{y}})^2$
+
+$= \sum_{i = 1}^{k} \sum_{j = 1}^{n_{i}}[(y_{ij} - \bar{y_{l}}) + (\bar{y_{l}} - \bar{\bar{y}})]^2$
+
+$= \sum_{i = 1}^{k} \sum_{j = 1}^{n_{i}}[(y_{ij} - \bar{y_{l}})^2 + (\bar{y_{l}} - \bar{\bar{y}})^2 + 2(\bar{y_{l}} - \bar{\bar{y}})(y_{ij} - \bar{y_{l}})]$
+
+$= \sum_{i = 1}^{k} [\sum_{j = 1}^{n_{i}}(y_{ij} - \bar{y_{l}})^2 + \sum_{j = 1}^{n_{i}}(\bar{y_{l}} - \bar{\bar{y}})^2 + 2(\bar{y_{l}} - \bar{\bar{y}})\sum_{j = 1}^{n_{i}}(y_{ij} - \bar{y_{l}})]$
+
+(Becasue $\bar{y_{l}} = \frac{\sum_{j = 1}^{n_{i}}y_{ij}}{n_{i}}$, then $\sum_{j = 1}^{n_{i}}(y_{ij} - \bar{y_{l}}) = \sum_{j = 1}^{n_{i}}y_{ij} - n_{i}\bar{y_{l}} = 0$,)
+
+$= \sum_{i = 1}^{k} [\sum_{j = 1}^{n_{i}}(y_{ij} - \bar{y_{l}})^2 + \sum_{j = 1}^{n_{i}}(\bar{y_{l}} - \bar{\bar{y}})^2]$
+
+$= \sum_{i = 1}^{k} \sum_{j = 1}^{n_{i}} (y_{ij} - \bar{y_{l}})^2 + \sum_{i = 1}^{k} \sum_{j = 1}^{n_{i}} (\bar{y_{l}} - \bar{\bar{y}})^2$
+
+$= WithinSS + BetweenSS$
+
+## Problem 2
+
+```{r}
+
+```
+

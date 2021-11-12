@@ -7,6 +7,23 @@ output: html_document
 
 ```{r include = FALSE}
 library(tidyverse)
+library(multcomp)
+
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
 ```
 
 ## Problem 1
@@ -48,7 +65,175 @@ $= WithinSS + BetweenSS$
 
 ## Problem 2
 
+Read data：
+
 ```{r}
+raw_df = 
+  read_csv("./Crash.csv")
+```
+
+**(a) Descriptive Statistics**
+
+First we take a quick look on the raw data:
+
+```{r message=FALSE}
+raw_df %>% 
+  knitr::kable(align = "c")
+```
+
+Tidy data:
+
+```{r}
+crash_df = 
+  raw_df %>% 
+    pivot_longer(
+      pedestrian:car,
+      names_to = "crash_type",
+      values_to = "PTSD_score"
+    ) %>% 
+    mutate(
+      crash_type = as.factor(crash_type)
+    ) %>% 
+  arrange(crash_type) %>% 
+  drop_na(PTSD_score) 
+```
+
+**Boxplot** the data:
+
+```{r}
+crash_df %>% 
+  group_by(crash_type) %>% 
+  ggplot(aes(x = crash_type, y = PTSD_score, color = crash_type)) +
+  geom_boxplot() +
+  theme(legend.position = "none") +
+  labs(
+    title = "Boxplot of PTSD Score vs. Crash Type",
+    x = "Crash type",
+    y = "PTSD score"
+  )
+```
+
+Measures of **Location** and **Dispersion** for each group:
+
+```{r}
+raw_df %>% 
+  summary() %>% 
+  knitr::kable(align = "c")
+```
+
+Also we can manually calculate `mean`, `sd` like this:
+
+```{r}
+crash_df %>% 
+  group_by(crash_type) %>% 
+  summarize(
+    n = n(),
+    mean = mean(PTSD_score),
+    sd = sd(PTSD_score),
+    sum = sum(PTSD_score)
+  ) %>% 
+  knitr::kable(align = "c")
 
 ```
+
+And manually calculate `median`, `quartiles` like this:
+
+For `pedestrian`:
+```{r collapse = TRUE}
+## arranged data: 29 30 38 39 40 42 42 43
+
+## Median
+(39 + 40)/2
+
+## Q1 (25th percentile)
+(30 + 38)/2
+
+## Q3 (75th percentile)
+(42 + 42)/2
+```
+
+For `bicycle`:
+
+```{r collapse = TRUE}
+## arranged data: 28 28 29 31 31 32 33 35 39 39
+
+## Median
+(31 + 32)/2
+
+## Q1 (25th percentile)
+29
+
+## Q3 (75th percentile)
+35
+```
+
+For `car`:
+
+```{r collapse = TRUE}
+## arranged data: 20 21 21 22 23 26 31 
+
+## Median
+22
+
+## Q1 (25th percentile)
+(21 + 21)/2
+
+## Q3 (75th percentile)
+(23 + 26)/2
+```
+
+**(b) ANOVA Test**
+
+Hypothesis:
+
+$H_{0}: \mu_{1} = \mu_{2} = \mu_{3}, where\ \mu_{1}, \mu_{2}, \mu_{3} \ represents\  the\  mean\  of\  PTSD\  scores\  of\  3\  crash\  types.$
+
+$H_{1}: at\ least\ two\ means\ are\ not\ equal.$
+
+```{r}
+res1 = aov(PTSD_score ~ factor(crash_type), data = crash_df)
+summary(res1)
+```
+
+The `test statistic` is $19.53$.
+
+And for $n = 10 + 7 + 8 = 25$, $k = 3$, $\alpha = 0.01$. 
+
+Then the F critical value is:
+
+```{r}
+qf(0.99, df1 = 2, df2 = 22)
+```
+
+$F_{k-1, n-k, 1-\alpha} = F_{2, 22, 0.99} = 5.719$
+
+Because $F = 19.53>F_{2, 22, 0.99} = 5.719$, reject the null hypothesis, and conclude that with pre-specified significant level of 0.01, at least two types of crash (among `car`, `bicycle` and `pedestrian`) have different mean PTSD scores.
+
+**(c) Multiple Comparison**
+
+```{r}
+# use pairwise.t.test() for Bonferroni
+pairwise.t.test(crash_df$PTSD_score, crash_df$crash_type, p.adj = 'bonferroni')
+
+# use Tukey
+Tukey_comp = TukeyHSD(res1)
+Tukey_comp
+plot(Tukey_comp)
+
+# use Dunnett's
+
+
+```
+
+Though the accurate p-value may be slightly different among different methods, we can still conclude that:
+
+1) The p-value between `pedestrian` and `car` group is around $9^{-6} \ll 0.05$, thus the mean PTSD scores between pedestrian crash and car crash are highly significantly different.
+
+2) The p-value between `pedestrian` and `bicycle` group is around $0.05 \approx 0.05$, thus the mean PTSD scores between pedestrian crash and bicycle crash have NO significant difference.
+
+3) The p-value between `car` and `bicycle` group is around $0.0014 \ll 0.05$, thus the mean PTSD scores between bicycle crash and car crash are highly significantly different.
+
+**(d) Summary**
+
+After analyzing the PTSD scores of 25 patients aging from 18-30 suffering from different types of crash (8 pedestrian crash, 10 bicycle crash and 7 car crash), we found that the mean PTSD scores are NOT statistically same among 3 crash types. Specifically, significant differences of mean PTSD scores have shown between `car crash` and `bicycle crash`, as well as between `car crash` and `pedestrian crash`, while there are NO significant difference between `pedestrian crash` and `bicycle crash`. Generally, we can conclude that the mean PTSD score of `car crash` is lower than other crash types.
 

@@ -219,6 +219,39 @@ Because $F = 19.53>F_{2, 22, 0.99} = 5.719$, reject the null hypothesis, and con
 
 **(c) Multiple Comparison**
 
+Here is the Bonferroni Multiple Comparison:
+
+Hypothesis is: $H_{0}: \alpha_{1} = \alpha_{2},\ i.e.,\ the\ mean\ of\ two\ compared\ groups\ are\ the\ same.$, $H_{1}: \alpha_{1} \ne \alpha_{2}$. 
+
+With Bonferroni adjustment: $\alpha ^{\ast } = \frac{\alpha }{\binom{k}{2}} = \frac{\alpha }{\binom{3}{2}} = \frac{0.01}{3} = 0.0033$
+
+Thus, the critical value is $t_{22, 0.9983} = 3.290888$, if $\left | t \right | > t_{crit} = 3.29$, reject $H_{0}$.
+
+```{r collapse = TRUE}
+## pedestrian vs. bicycle
+var1 = var.test(raw_df$pedestrian, raw_df$bicycle, alternative = "two.sided") ## equal variance
+res_pb = t.test(raw_df$pedestrian, raw_df$bicycle, var.equal = TRUE, paired = FALSE)
+res_pb$statistic
+
+## pedestrian vs. car
+var2 = var.test(raw_df$pedestrian, raw_df$car, alternative = "two.sided") ## equal variance
+res_pc = t.test(raw_df$pedestrian, raw_df$car, var.equal = TRUE, paired = FALSE)
+res_pc$statistic
+
+## car vs. bicycle
+var3 = var.test(raw_df$bicycle, raw_df$car, alternative = "two.sided") ## equal variance
+res_cb = t.test(raw_df$bicycle, raw_df$car, var.equal = TRUE, paired = FALSE)
+res_cb$statistic
+```
+
+Thus, we can conclude:
+
+- pedestrian vs. bicycle, $t_{stat} = 2.404384 < t_{crit} = 3.29$, fail to reject $H_{0}$, $\mu_{pedestrian} = \mu_{bicycle}$;
+- pedestrian vs. car, $t_{stat} = 5.843901 > t_{crit} = 3.29$, reject $H_{0}$, $\mu_{pedestrian} \ne \mu_{car}$;
+- car vs. bicycle, $t_{stat} = 4.619149 > t_{crit} = 3.29$, reject $H_{0}$, $\mu_{bicycle} \ne \mu_{car}$;
+
+Alternatively, we can also use `pairwise.t.test` function to see p-value:
+
 ```{r}
 # use pairwise.t.test() for Bonferroni
 pairwise.t.test(crash_df$PTSD_score, crash_df$crash_type, p.adj = 'bonferroni')
@@ -227,9 +260,6 @@ pairwise.t.test(crash_df$PTSD_score, crash_df$crash_type, p.adj = 'bonferroni')
 Tukey_comp = TukeyHSD(res1)
 Tukey_comp
 plot(Tukey_comp)
-
-# use Dunnett's
-
 
 ```
 

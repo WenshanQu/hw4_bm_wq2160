@@ -2,7 +2,9 @@
 title: "hw4_bm_wq2160"
 author: "Wenshan Qu (wq2160)"
 date: "11/11/2021"
-output: html_document
+output:
+  pdf_document: 
+    latex_engine: xelatex
 ---
 
 ```{r include = FALSE}
@@ -67,7 +69,7 @@ $= WithinSS + BetweenSS$
 
 Read data：
 
-```{r}
+```{r message = FALSE}
 raw_df = 
   read_csv("./Crash.csv")
 ```
@@ -182,6 +184,8 @@ For `car`:
 (23 + 26)/2
 ```
 
+Comment: based on the boxplot and mean values, we found that the average PTSD scores of 3 crash types are $car < bicycle < pedestrian$ in our samples.
+
 **(b) ANOVA Test**
 
 Hypothesis:
@@ -194,6 +198,10 @@ $H_{1}: at\ least\ two\ means\ are\ not\ equal.$
 res1 = aov(PTSD_score ~ factor(crash_type), data = crash_df)
 summary(res1)
 ```
+
+Based on the test, we can get ANOVA table:
+
+![anova]("./aov.png")
 
 The `test statistic` is $19.53$.
 
@@ -253,7 +261,7 @@ Since
 
 The table is given below:
 
-```{r}
+```{r echo = FALSE}
 chi_table = 
   tibble(
     Drug = c("Desipramine", "Lithium", "Placebo", "Total"),
@@ -272,7 +280,7 @@ About the `E` calculation process, for `Relapse` group, both are $\frac{(53 \tim
 
 State the Hypothesis:
 
-$H_{0}: the\ probability\ of\  a\ subject's\ relapse\ has\ NO\ association\ with\ the\ drug\ the\ subject\ was\ assigned\ to.$
+$H_{0}: the\ probability\ of\  a\ subject's\ relapse\ has\ NO\ association\ with\ the\ drug\ the\ subject\ was\ assigned\ to.\ i.e.\ p_{1} = p_{2} = p_{3}.$
 
 $H_{1}: the\ probability\ of\  a\ subject's\ relapse\ is\ associated\ with\ the\ drug\ the\ subject\ was\ assigned\ to.$
 
@@ -282,7 +290,9 @@ $\chi ^ 2 = \sum_{i = 1}^{3} \sum_{i = 1}^{2} \frac{(O_{ij} - E_{ij})^2}{E_{ij}}
 
 $= \frac{(15 - 17.67)^2}{17.67} + \frac{(18 - 17.67)^2}{17.67} + \frac{(20 - 17.67)^2}{17.67} + \frac{(18 - 15.33)^2}{15.33} + \frac{(15 - 15.33)^2}{15.33} + \frac{(13 - 15.33)^2}{15.33}$ 
 
-$= 1.543$  $follows \  \chi ^ 2_{(3-1) \times (2-1) = 2} \ under \ H_{0}$
+$= 1.543$ 
+
+$follows \  \chi ^ 2_{(3-1) \times (2-1) = 2} \ under \ H_{0}$
 
 Critical Value:
 
@@ -308,7 +318,7 @@ Thus the $p-value = 0.4623$.
 
 Decision and Interpretation:
 
-Given $\chi ^ 2 = 1.543 < \chi ^ 2 _{2, 0.95} = 5.991$, and $p-value = 0.4623 > 0.05$, we fail to reject $H_{0}$, and conclude that at the significance level of 0.05, there is no association between the probability of a subject's relapse and the drug the subject was assigned to.
+Given $\chi ^ 2 = 1.543 < \chi ^ 2 _{2, 0.95} = 5.991$, and $p-value = 0.4623 > 0.05$, we fail to reject $H_{0}$, and conclude that at the significance level of 0.05, there is no significant association between the probability of a subject's relapse and the drug the subject was assigned to.
 
 
 
